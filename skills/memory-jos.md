@@ -34,8 +34,9 @@ When writing memory:
 
 If no `<project-root>/memory-jos/` exists yet:
 1. Create the directory and `MEMORY-JOS.md` with a project header
-2. Add relevant project facts as date-stamped bullets
-3. Create topic files as needed
+2. Add `memory-jos/` to the project's `.gitignore` (memory is personal, not repo content)
+3. Add relevant project facts as date-stamped bullets
+4. Create topic files as needed
 
 ## Read Protocol
 

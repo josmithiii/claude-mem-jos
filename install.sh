@@ -55,12 +55,12 @@ if [ ! -f "$SETTINGS" ]; then
 EOF
 fi
 
-# Add SessionStart hook if not already present
-if jq -e '.hooks.SessionStart' "$SETTINGS" >/dev/null 2>&1; then
-    echo "  SessionStart hook already exists, skipping"
+# Add SessionStart hook — append to existing array, skip if our hook already present
+if jq -e '.hooks.SessionStart // [] | map(.hooks[]?.command) | map(select(contains("hooks-jos/"))) | length > 0' "$SETTINGS" >/dev/null 2>&1; then
+    echo "  SessionStart hook already registered, skipping"
 else
     tmp=$(mktemp)
-    jq '.hooks.SessionStart = [{
+    jq '.hooks.SessionStart = (.hooks.SessionStart // []) + [{
         "matcher": "startup|clear|compact",
         "hooks": [{
             "type": "command",
@@ -71,12 +71,12 @@ else
     echo "  Added SessionStart hook"
 fi
 
-# Add PreCompact hook if not already present
-if jq -e '.hooks.PreCompact' "$SETTINGS" >/dev/null 2>&1; then
-    echo "  PreCompact hook already exists, skipping"
+# Add PreCompact hook — append to existing array, skip if our hook already present
+if jq -e '.hooks.PreCompact // [] | map(.hooks[]?.command) | map(select(contains("hooks-jos/"))) | length > 0' "$SETTINGS" >/dev/null 2>&1; then
+    echo "  PreCompact hook already registered, skipping"
 else
     tmp=$(mktemp)
-    jq '.hooks.PreCompact = [{
+    jq '.hooks.PreCompact = (.hooks.PreCompact // []) + [{
         "matcher": "",
         "hooks": [{
             "type": "command",

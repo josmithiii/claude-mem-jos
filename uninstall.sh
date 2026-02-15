@@ -26,12 +26,21 @@ fi
 # Remove hooks-jos dir if empty
 rmdir "$CLAUDE_DIR/hooks-jos" 2>/dev/null && echo "Removed empty hooks-jos/" || true
 
-# --- Remove hook entries from settings.json ---
+# --- Remove only memory-jos hook entries from settings.json ---
 SETTINGS="$CLAUDE_DIR/settings.json"
 if [ -f "$SETTINGS" ] && command -v jq >/dev/null 2>&1; then
     tmp=$(mktemp)
-    jq 'del(.hooks.SessionStart) | del(.hooks.PreCompact)' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
-    echo "Removed hook entries from settings.json"
+    # Filter out hook groups whose commands reference hooks-jos/, then remove empty arrays
+    jq '
+      .hooks.SessionStart = ([.hooks.SessionStart // [] | .[] |
+        select((.hooks // []) | all(.command | contains("hooks-jos/") | not))]) |
+      .hooks.PreCompact = ([.hooks.PreCompact // [] | .[] |
+        select((.hooks // []) | all(.command | contains("hooks-jos/") | not))]) |
+      if .hooks.SessionStart == [] then del(.hooks.SessionStart) else . end |
+      if .hooks.PreCompact == [] then del(.hooks.PreCompact) else . end |
+      if .hooks == {} then del(.hooks) else . end
+    ' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
+    echo "Removed memory-jos hook entries from settings.json"
 fi
 
 # --- Remove from skills/CLAUDE.md ---

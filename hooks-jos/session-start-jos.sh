@@ -34,6 +34,12 @@ if [ -f "$GLOBAL_INDEX" ]; then
     context+="# Global Memory (memory-jos)
 ${global_content}
 "
+    global_lines=$(wc -l < "$GLOBAL_INDEX" | tr -d ' ')
+    if [ "$global_lines" -gt 150 ]; then
+        context+="
+[TRUNCATED] Global index has ${global_lines} lines (cap: 150). Run consolidation to trim it.
+"
+    fi
 fi
 
 # --- Per-project memory ---
@@ -45,6 +51,12 @@ if [ -f "$PROJECT_INDEX" ]; then
 # Project Memory (memory-jos)
 ${project_content}
 "
+    project_lines=$(wc -l < "$PROJECT_INDEX" | tr -d ' ')
+    if [ "$project_lines" -gt 150 ]; then
+        context+="
+[TRUNCATED] Project index has ${project_lines} lines (cap: 150). Run consolidation to trim it.
+"
+    fi
 fi
 
 # --- Post-compaction recovery note ---
